@@ -1,0 +1,704 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Localizações dos componentes nas portas do arduino.
+
+
+const int LocalizacaoSensorAgua {A0}; //Aqui é a localização do Sensor D'Água nos pinos do arduino.
+
+const int LocalizacaoBotaoUm {2};     //Aqui é a localização do Botão Número 1 nos pinos do arduino.
+
+const int LocalizacaoBotaoDois {4};   //Aqui é a localização do Botão Número 2 nos pinos do arduino.
+
+const int PINOLEDVERMELHO {6};        //Aqui é a localização do Led nos pinos do arduino.
+
+const int LocalizacaoBuzzer {8};      //Aqui é a localização do Buzzer nos pinos do arduino.
+
+
+//Declarações Globais.
+
+int ValorSensorAgora {0};             //Aqui é o valor do Sensor D'Água (entenda neste momento). 
+                                      //Entenda ele como possuindo o seguinte valor = 
+                                      //(analogRead(LocalizacaoSensorAgua)) 
+
+int nWhileFuncaoAcenderLed {10};
+
+//bool voltandoaLeitura {0};
+
+
+
+
+
+
+
+
+
+//Parte Led daqui para baixo.
+
+//const int PINOLEDVERMELHO {6};
+
+int NivelQueOLedDeveAcender {500};
+
+
+
+//Parte do Buzzer para baixo.
+
+int NivelQueoBuzzerDeveLigarAtualizado {NivelQueOLedDeveAcender + 200}; //Aqui é o valor que o Buzzer Deve Possuir (que consiste
+                                                                        //Em ser [Com ele atualizando em tempo real] O valor do 
+                                                                        //Sensor D'Água + 200 .
+
+
+
+
+
+
+//Configurações do Botão 1 em baixo.
+
+//const int LocalizacaoBotaoUm {2}; //Aqui é a localização do Botão Número 1 nos pinos do arduino.
+
+bool BoolEstadoBotaoUm {0}; //Aqui é o estado 0/1 do Botão número 1.
+
+bool AumentarNivelQueOLedDeveAcender {1}; // Se o if ? Deve ou não .Ver dps.
+
+        void funcaoZeroouUmB1 (){
+
+          BoolEstadoBotaoUm = !(digitalRead (LocalizacaoBotaoUm));
+
+        }
+
+
+
+//Configurações do Botão 2 em baixo.
+
+//const int LocalizacaoBotaoDois {4}; //Aqui é a localização do Botão Número 2 nos pinos do arduino.
+
+bool BoolEstadoBotaoDois {0}; //Aqui é o estado 0/1 do Botão número 2/
+
+bool DiminuirNivelQueOLedDeveAcender {1};
+
+        void funcaoZeroouUmB2 (){
+
+          BoolEstadoBotaoDois = !(digitalRead (LocalizacaoBotaoDois));
+
+        }
+
+
+//Parte da leitura.
+
+int lerLeitura = 1;
+
+// int md = 1; // Quantas vezes vc vai multiplicar o delay 
+
+int localizacaoLeitura = 0;
+
+int MultporDelayLeitura {1}; // Aqui é se você vai usar de delay ou não (no caso de congelar a tela).
+
+bool Whilecongelar = 1;      //Aqui é a parte se vai congelar a tela (? Verificar depois).
+
+int localizacaoLeituraSwitch {0}; // Aqui é onde fica a localização da leitura com switch.
+
+String StringCSwitch [2] {"Ola , Bom Dia!  ",
+                          "Para aprender a "};
+
+
+
+
+
+
+
+
+
+
+
+
+
+void setup()
+{
+  Serial.begin(115200);
+
+  while (lcd.begin(COLUMS, ROWS) != 1) //colums - 20, rows - 4
+  {
+    Serial.println(F("PCF8574 is not connected or lcd pins declaration is wrong. Only pins numbers: 4,5,6,16,11,12,13,14 are legal."));
+    delay(5000);   
+  }
+
+  lcd.print(F("PCF8574 is OK..."));    //(F()) saves string to flash & keeps dynamic memory free
+  delay(200);
+
+  lcd.clear();
+
+}
+
+/*
+        void funcaoZeroouUmB1 (){
+
+          BoolEstadoBotaoUm = !(digitalRead (LocalizacaoBotaoUm));
+
+        }
+
+
+
+        void funcaoZeroouUmB2 (){
+
+          BoolEstadoBotaoDois = !(digitalRead (LocalizacaoBotaoDois));
+
+        }
+*/
+
+
+//bool voltandoaLeitura {false};
+
+
+//bool Whilecongelar = 1;
+
+  void congelarVoltando (){
+
+        if (digitalRead (LocalizacaoBotaoDois)!=1){
+          Whilecongelar = 0;
+
+          localizacaoLeitura = (localizacaoLeitura - 2);
+          // Aqui não colocar um lcd.clear(); , afinal de contas , já tem o necessario para apagar , ou deve.
+        }
+      }
+
+
+  void congelar () {
+
+   // bool Whilecongelar = 1; // Aqui fecha o while do cara while dentro do congelar(){} que fica em baixo
+
+    while (Whilecongelar == 1){
+        if(digitalRead (LocalizacaoBotaoUm) != 1){
+          Whilecongelar = 0 ;
+          ++localizacaoLeitura; // Aqui é caso aperte o Botão 1 , avançar a leitura;
+        } 
+
+          if (digitalRead (LocalizacaoBotaoDois)!=1){
+            
+          congelarVoltando ();
+
+          }
+
+         }
+         Whilecongelar = 1; // Aqui serve para fechar repetir o loop While
+    }
+
+
+    
+    //delay(100);
+
+  //}
+
+const int qntLeitura {26};
+  
+//                                  "0123456789123456"
+    String nomeString [qntLeitura]{ "Ola , Bom Dia!  ",
+                                    "Para aprender a ",
+                                //  "0123456789123456"
+                                    "Utilizar esse   ",
+                                    "Dispositivo     ",
+                                //  "0123456789123456"
+                                    "Leia essa Tela  ",
+                                    "      LCD       ",//6
+                                //  "0123456789123456"
+                                    "Este Aparelho   ",
+                                    "Tem como objeti-",//8
+                                //  "0123456789123456"
+                                    "vo , o de evitar",
+                                    "Afogamentos ao  ",//10
+                                //  "0123456789123456"
+                                    "Emitir um Sinal ",
+                                    "Sonoro , para   ",
+                                //  "0123456789123456"
+                                    "Alertar os Res -",
+                                    "ponsaveis dessa ",//14
+                                //  "0123456789123456"
+                                    "Pessoa que pode ",
+                                    "estar se        ",
+                                //  "0123456789123456"
+                                    "Afogando.       ",
+                                    "                ",//18
+                                //  "0123456789123456"
+                                    "Esse dispositivo",
+                                    "Tem o seu funcio", 
+                                //  "0123456789123456"
+                                    "namento com base",
+                                    "Na Agitacao/Onda",//22
+                                //  "0123456789123456"
+                                    "Que a possivel  ",
+                                    "Vitima do afoga-",
+                                //  "0123456789123456"
+                                    "mento Provoca.  ",
+                                    "                "//26
+
+                                    
+                                    
+                                    };
+
+          void congelarnaLeitura (){
+        if (localizacaoLeitura >= 15){
+        congelar ();
+        MultporDelayLeitura = 1; // Colocar 0 aqui
+        }
+    }
+
+   // void voltarlocalizacaoLeitura (){
+    //  digital
+    //}
+
+    // /*
+    void leitura (){
+
+        if(lerLeitura == 1){
+
+      //int DelayVezesMultporDelayLeitura (MultporDelayLeitura*2000);
+
+      lcd.clear();
+      int DelayVezesMultporDelayLeitura (2000); // Exibir sem a volta da tela
+
+      lcd.print (nomeString[localizacaoLeitura]);
+      lcd.setCursor (0,1);
+
+      //lcd.setCursor (14,0);//Teste
+      //lcd.print (localizacaoLeitura);// Teste
+
+      lcd.print (nomeString[++localizacaoLeitura]);
+      ++localizacaoLeitura;
+
+      //lcd.setCursor (14,1);//Testando
+      //lcd.print (localizacaoLeitura);//Teste
+
+      //congelarnaLeitura (); Tirar esse congelar por enquanto
+        int sairLoop (0);
+        sairLoop =0;
+
+        if (!(digitalRead (LocalizacaoBotaoUm)) && (sairLoop == 0)){
+          DelayVezesMultporDelayLeitura += 500 ;
+          sairLoop =1;
+        }
+        sairLoop =1;
+
+          int sairLoop2 (0);
+          sairLoop2 =0;
+
+        if (!(digitalRead (LocalizacaoBotaoDois)) && (sairLoop2 == 0)){
+        //if   (!(funcaoZeroouUmB2 ();)) && (sairLoop2 == 0){
+
+          DelayVezesMultporDelayLeitura -= 500 ;
+          sairLoop2 =1;
+
+        }
+        sairLoop2 =1;
+          
+
+            
+      delay(DelayVezesMultporDelayLeitura);
+
+      if (localizacaoLeitura == qntLeitura){// aqui serve para parar de ficar indo aqui depois que terminou de ler tudo
+
+        lerLeitura = 0;
+
+        lcd.clear (); // verificar depois
+      }
+        }
+
+     //lcd.clear(); // dar um clear no final da leitura
+    }
+    // */
+
+      void switchLeitura (){
+
+          switch (localizacaoLeituraSwitch){
+
+              case 0: {
+                      StringCSwitch [0] = "Utilizar esse   ";
+                      StringCSwitch [1] = "Dispositivo     ";
+              }
+
+              case 1: {
+                      StringCSwitch [2] = "Leia essa Tela  ";
+                      StringCSwitch [3] = "      LCD       ";
+              }
+
+              case 2: {
+                      StringCSwitch [4] = "Este Aparelho   ";
+                      StringCSwitch [5] = "Tem como objeti-";
+              }
+              
+              case 3: {
+                      StringCSwitch [6] = "Este Aparelho   ";
+                      StringCSwitch [7] = "Tem como objeti-";
+                      }
+          }
+      }
+    
+
+    /*
+    "Este Aparelho   ",
+                                    "Tem como objeti-",//8
+                                //  "0123456789123456"
+                                    "vo , o de evitar",
+                                    "Afogamentos ao  ",//10
+                                //  "0123456789123456"
+                                    "Emitir um Sinal ",
+                                    "Sonoro , para   ",
+                                //  "0123456789123456"
+                                    "Alertar os Res -",
+                                    "ponsaveis dessa ",//14
+                                //  "0123456789123456"
+                                    "Pessoa que pode ",
+                                    "estar se        ",
+                                //  "0123456789123456"
+                                    "Afogando.       ",
+                                    "                ",//18
+                                //  "0123456789123456"
+                                    "Esse dispositivo",
+                                    "Tem o seu funcio", 
+                                //  "0123456789123456"
+                                    "namento com base",
+                                    "Na Agitacao/Onda",//22
+                                //  "0123456789123456"
+                                    "Que a possivel  ",
+                                    "Vitima do afoga-",
+                                //  "0123456789123456"
+                                    "mento Provoca.  ",
+                                    "                "//26
+
+    */
+    void FuncaoEstadoBotaoUmNODISPLAY (){
+
+        funcaoZeroouUmB1 ();
+
+        lcd.setCursor (0,0);
+        lcd.print ("B");
+
+        lcd.setCursor(2,0);
+        lcd.print (BoolEstadoBotaoUm);
+
+              
+              if (BoolEstadoBotaoUm == AumentarNivelQueOLedDeveAcender){
+                        if (NivelQueOLedDeveAcender < 900){
+                          NivelQueOLedDeveAcender = NivelQueOLedDeveAcender+(AumentarNivelQueOLedDeveAcender * 100);
+                        }                                                     //                       1/0   x 100
+              (AumentarNivelQueOLedDeveAcender == 0)?AumentarNivelQueOLedDeveAcender = 1 : AumentarNivelQueOLedDeveAcender = 0;
+
+              }
+              
+      
+         }
+                   void FuncaoEstadoBotaoDoisNODISPLAY (){
+
+        funcaoZeroouUmB2 (); //BoolEstadoBotaoDois = !(digitalRead (LocalizacaoBotaoDois));
+
+        lcd.setCursor (12,0);
+
+        lcd.print ("2B");
+
+        lcd.setCursor(15,0);
+        lcd.print (BoolEstadoBotaoDois);
+
+
+                if (BoolEstadoBotaoDois == DiminuirNivelQueOLedDeveAcender){
+              
+                        if (NivelQueOLedDeveAcender > 100){
+                          NivelQueOLedDeveAcender = NivelQueOLedDeveAcender-(DiminuirNivelQueOLedDeveAcender * 100);
+                        }                                            //                  1/0    *              100
+              //((NivelQueOLedDeveAcender > 100 )&(DiminuirNivelQueOLedDeveAcender))  == 0?DiminuirNivelQueOLedDeveAcender = 1 : DiminuirNivelQueOLedDeveAcender = 0;
+              DiminuirNivelQueOLedDeveAcender == 0?DiminuirNivelQueOLedDeveAcender = 1 : DiminuirNivelQueOLedDeveAcender = 0;
+                }
+
+
+      }
+            void Funcao_Ativacao_Buzzer (){
+
+        //if(ValorSensorAgora >= NivelQueoBuzzerDeveLigarAtualizado){
+          if(NivelQueoBuzzerDeveLigarAtualizado == NivelQueoBuzzerDeveLigarAtualizado){
+
+          digitalWrite (LocalizacaoBuzzer,HIGH);
+
+        }
+
+        else {
+
+          digitalWrite (LocalizacaoBuzzer,LOW);
+        }
+      }
+
+    void Funcionamento_Geral (){
+
+        lcd.setCursor (0,1);
+
+        lcd.print("N ");
+        int ValorSensorAgora = (analogRead(LocalizacaoSensorAgua));
+        lcd.print (ValorSensorAgora);
+
+        
+        lcd.setCursor (4,0);
+        lcd.print ("nAV ");
+        lcd.print (NivelQueOLedDeveAcender);
+
+        //lcd.setCursor (0,1);
+        //lcd.print ("Bn1 = ");
+        //int ESTADOBOTAOUM{};
+
+            if ((NivelQueOLedDeveAcender + 200) < 1000){
+          lcd.setCursor (5,1);
+          lcd.print (" ");
+          lcd.setCursor (11,1); //Verificar um > 
+          lcd.print ("B ");
+          NivelQueoBuzzerDeveLigarAtualizado = (NivelQueOLedDeveAcender + 200);
+          lcd.print (NivelQueoBuzzerDeveLigarAtualizado);
+            } else{
+              
+              lcd.setCursor (11,1);
+          lcd.print ("B");
+          NivelQueoBuzzerDeveLigarAtualizado = (NivelQueOLedDeveAcender + 200);
+          lcd.print (NivelQueoBuzzerDeveLigarAtualizado);
+            }
+        
+
+
+      }
+
+
+        void FuncaoAcenderLed (){
+
+          //digitalWrite (PINOLEDVERMELHO,HIGH); // Tirar  tudo 01/12
+
+          int zWhile{0};
+
+              while (zWhile <= nWhileFuncaoAcenderLed){
+          ValorSensorAgora = (analogRead(LocalizacaoSensorAgua));
+
+          (ValorSensorAgora >= NivelQueOLedDeveAcender)?digitalWrite (PINOLEDVERMELHO,HIGH) : digitalWrite (PINOLEDVERMELHO,LOW);//Tirar o // 01/12
+          //digitalWrite (PINOLEDVERMELHO, HIGH); //MODIFICAR DEPOIS
+              ++zWhile;
+
+
+              }
+        }
+
+        void temporizadorvoltaraLeitura (){
+
+          int qntdeVoltasparaVoltarLeitura {30};
+
+          int oooo {};
+          
+          int ficartemporizadorvoltaraLeitura {88}; // 88 significa verdadeiro
+
+            while ((ficartemporizadorvoltaraLeitura == 88) && (oooo != 30)){
+
+                          if((digitalRead (LocalizacaoBotaoUm) != 1) && (digitalRead (LocalizacaoBotaoDois) != 1)){
+                            oooo++;
+                            delay(200);
+
+                              if (oooo < 10){
+                                lcd.setCursor (7,1);
+                                lcd.print ("0");
+
+                                lcd.setCursor (8,1);
+                                lcd.print (oooo);
+                              }
+                                else {
+                                  lcd.setCursor (7,1);
+                                  lcd.print (oooo);
+                                }
+
+                            /*
+                              if (oooo == 9){
+                                lcd.setCursor(6,1);
+                                lcd.print (" ");
+                              }
+                              */
+
+                          }
+                                else {
+                                  ficartemporizadorvoltaraLeitura = 99; // 99 significa falso
+                                  lcd.setCursor (6,1); // Aqui é para apagar se você apertar os 2 botões ao mesmo tempo , para setar a posição e dps apagar
+                                  lcd.print ("   "); // Aqui é para apagar as 2 posições geradas ao apertar os 2 botões
+                                }
+                                        //if (oooo == qntdeVoltasparaVoltarLeitura){
+                                        //  leitura ();
+                                      //  }
+            }
+              if (oooo == qntdeVoltasparaVoltarLeitura){
+                
+                                            lerLeitura =1 ;
+                                            localizacaoLeitura = 0;
+
+                                            //bool voltandoaleitura = true; //TESTANDO HOJE
+                                            leitura ();
+
+                                          }         
+
+                                                            
+        }
+
+      void voltaraLeitura (){
+
+        //lcd.setCursor (0,0);//tirar
+        //lcd.print ("Voltando");//tirar
+
+        long long int tempovoltarLeitura {0LL};
+
+        int ciclosvoltarLeitura {-1}; //a
+
+          //bool p,o,i,u,y,pp,oo,ii,uu,ppp,ooo,iii,uuu,yyy;
+            // 1 2 3 4 5              10              15     
+            //int oooo;   
+
+        
+
+        if ((digitalRead (LocalizacaoBotaoUm) != 1) && (digitalRead (LocalizacaoBotaoDois) != 1)){
+
+        /*
+                    if((digitalRead (LocalizacaoBotaoUm) != 1) && (digitalRead (LocalizacaoBotaoDois) != 1)){
+                      oooo++;
+                      delay(200);
+                      lcd.print ("1");
+                    }
+                    else {
+                      //Sairloop;
+                    }
+
+                    */
+                   temporizadorvoltaraLeitura();
+
+
+              
+
+
+/*
+          ciclosvoltarLeitura++;//a
+
+                while (!((digitalRead (LocalizacaoBotaoUm) != 1) && (digitalRead (LocalizacaoBotaoDois) != 1))){//a
+            if (tempovoltarLeitura == 1){//a
+              ciclosvoltarLeitura++;//a
+            }//a
+                }//a
+*/
+
+//Colocar um print aqui com o número de voltas
+          if (ciclosvoltarLeitura == 10){//a/2
+
+            lcd.clear (); 
+            lcd.print ("Deu 1M");
+
+            delay(3000);
+          }
+          
+        }
+
+
+      
+      }
+
+
+  
+
+
+
+    
+
+
+
+
+
+
+int limparMain {1};
+
+  void loop(){
+  /*
+    
+      leitura ();// Aqui é para Colocar um if (){leituraEstrutura();}
+
+
+
+     lcd.clear();
+
+      if ( lerLeitura != 1){
+
+        
+          if(limparMain == 1){
+          lcd.clear();
+          }
+      //lcd.print ("Acabou");
+      //delay(200);
+
+      //Funcionamento_Geral ();
+
+      int a {300};
+      //
+      delay(a);
+
+      FuncaoEstadoBotaoUmNODISPLAY ();
+      //
+      delay(a);
+      //FuncaoEstadoBotaoDoisNODISPLAY ();
+      //
+      delay(a);
+
+      //FuncaoAcenderLed ();
+      //
+      delay(a);
+
+
+     // Funcao_Ativacao_Buzzer ();
+      //
+      delay(a);
+
+      voltaraLeitura();
+      //
+      delay(a);
+
+      limparMain = 0;
+      
+      }
+
+  */
+
+      if(limparMain == 1){
+              lcd.clear();
+              }
+
+  //leitura ();// Colocar um if aqui para só ir leitura se apertar os 2 ao mesmo tempo por um determinado tempo.
+
+    //if(bool voltandoaleitura ; voltandoaleitura == false){
+      Funcionamento_Geral ();
+
+      FuncaoEstadoBotaoUmNODISPLAY (); 
+
+      FuncaoEstadoBotaoDoisNODISPLAY ();
+
+      FuncaoAcenderLed ();
+
+      Funcao_Ativacao_Buzzer ();
+
+    //}
+
+  voltaraLeitura ();
+
+
+ limparMain = 0;
+
+
+
+
+
+
+
+
+
+
+ /**/
+}
